@@ -17,6 +17,10 @@ public class KeystrokesElement extends Hud {
     )
     public boolean mouseKeystrokes = true;
     @Switch(
+            name = "Enable Mouse CPS"
+    )
+    public boolean mouseCPS = false;
+    @Switch(
             name = "Jump (Space) Keystrokes"
     )
     public boolean jumpKeystrokes = false;
@@ -97,6 +101,7 @@ public class KeystrokesElement extends Hud {
                 for (GuiKey key : this.mouseKeys) {
                     key.updateKeyState();
                     key.drawKey(x, y, scale);
+                    if (mouseCPS) key.drawCps(x, y, 0.5F);
                 }
             }
             if (jumpKeystrokes) {
