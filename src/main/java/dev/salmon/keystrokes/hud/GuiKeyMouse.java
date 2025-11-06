@@ -1,8 +1,7 @@
 package dev.salmon.keystrokes.hud;
 
-import cc.polyfrost.oneconfig.libs.universal.UGraphics;
 import dev.salmon.keystrokes.config.KeystrokesConfig;
-import net.minecraft.client.renderer.GlStateManager;
+import dev.salmon.keystrokes.hud.api.KeyRenderer;
 import net.minecraft.client.settings.KeyBinding;
 
 import java.util.LinkedList;
@@ -16,22 +15,21 @@ public class GuiKeyMouse extends GuiKey {
         super(x, y, width, height, keyBinding);
     }
 
-    public void drawCps(float x, float y, float scale) {
-        String cpsText = getCps() + " CPS";
-        x += this.relX + (this.width / 2 - (float) this.fr.getStringWidth(cpsText) / 4);
-        y += this.relY + (this.height - this.fr.FONT_HEIGHT * scale) - 2;
+    @Override
+    public void render(float baseX, float baseY, float scale) {
+        float x = baseX + relX * scale;
+        float y = baseY + relY * scale;
+        float w = width * scale;
+        float h = height * scale;
 
-        UGraphics.GL.pushMatrix();
-        UGraphics.GL.translate(-x * (scale - 1.0F), -y * (scale - 1.0F), 0.0F);
-        UGraphics.GL.scale(scale, scale, 1.0F);
+        KeyRenderer.drawBackground(x, y, w, h, style, isPressed, percentFaded, scale);
 
-        GlStateManager.enableBlend();
-        this.fr.drawString(cpsText, x, y, getTextColor(), KeystrokesConfig.keystrokesElement.shadow);
-        GlStateManager.disableBlend();
-
-        UGraphics.GL.popMatrix();
+        if (KeystrokesConfig.keystrokesElement.mouseCPS && getCps() > 0) {
+                KeyRenderer.drawCenteredText(fr, this.getCps() + "", x, y, w, h, style, isPressed, percentFaded);
+        } else {
+            KeyRenderer.drawCenteredText(fr, getKeyName(), x, y, w, h, style, isPressed, percentFaded);
+        }
     }
-
 
     @Override
     protected boolean isKeyDown(int code) {
@@ -46,7 +44,7 @@ public class GuiKeyMouse extends GuiKey {
         pressed = true;
     }
 
-    private int getCps() {
+    public int getCps() {
         long time = System.currentTimeMillis();
 
         while (!clicks.isEmpty() && clicks.peek() < time) {
