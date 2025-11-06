@@ -17,7 +17,6 @@ public class GuiKeyMouse extends GuiKey {
     }
 
     public void pressed(int code) {
-        if (code != this.keyBinding.getKeyCode()) return;
-        pressed = true;
+        if (code == this.keyBinding.getKeyCode()) pressed = true;
     }
 }

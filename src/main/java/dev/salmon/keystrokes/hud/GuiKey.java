@@ -1,150 +1,92 @@
 package dev.salmon.keystrokes.hud;
 
-import cc.polyfrost.oneconfig.gui.OneConfigGui;
-import cc.polyfrost.oneconfig.platform.Platform;
-import cc.polyfrost.oneconfig.renderer.NanoVGHelper;
-import cc.polyfrost.oneconfig.utils.color.ColorUtils;
 import dev.salmon.keystrokes.config.KeystrokesConfig;
+import dev.salmon.keystrokes.hud.api.KeyRenderer;
+import dev.salmon.keystrokes.hud.api.KeyStyle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 public class GuiKey extends Gui {
+    protected final KeyStyle style = KeyStyle.INSTANCE;
 
-    protected final FontRenderer fr;
+    protected final FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
+    protected final KeyBinding keyBinding;
 
-    protected float relX;
-    public float relY;
-    protected float width;
-    public float height;
-    protected KeyBinding keyBinding;
+    protected float relX, relY, width, height;
     protected boolean isPressed;
     protected float percentFaded;
     private long lastPress;
 
     public GuiKey(float x, float y, float width, float height, KeyBinding keyBinding) {
-        this.fr = Minecraft.getMinecraft().fontRendererObj;
         this.relX = x;
         this.relY = y;
         this.width = width;
         this.height = height;
         this.keyBinding = keyBinding;
-        this.percentFaded = 0.0F;
+        this.percentFaded = 1.0F;
         this.lastPress = System.currentTimeMillis();
     }
 
-    public void drawKey(float x, float y, float scale) {
-        float finalX = x + relX * scale;
-        float finalY = y + relY * scale;
-        x += this.relX;
-        y += this.relY;
-        if (KeystrokesConfig.keystrokesElement.rounded) {
-            NanoVGHelper.INSTANCE.setupAndDraw(true, vg -> NanoVGHelper.INSTANCE.drawRoundedRect(vg, finalX, finalY, width * scale, height * scale, getBackgroundColor(), KeystrokesConfig.keystrokesElement.cornerRadius * scale));
-        } else {
-            Platform.getGLPlatform().drawRect(x, y, x + this.width, y + this.height, getBackgroundColor());
-        }
-        x += (this.width - this.fr.getStringWidth(getKeyName()) + 1) / 2;
-        y += (this.height - this.fr.FONT_HEIGHT + 2) / 2;
-
-        GlStateManager.enableBlend();
-        boolean shadow = isPressed ? KeystrokesConfig.keystrokesElement.shadowActive : KeystrokesConfig.keystrokesElement.shadow;
-        this.fr.drawString(getKeyName(), x, y, getTextColor(), shadow);
-        GlStateManager.disableBlend();
+    public void setLayout(float height, float relY) {
+        this.height = height;
+        this.relY = relY;
     }
 
-    protected int getBackgroundColor() {
-        int thisColor = (this.isPressed ? KeystrokesConfig.keystrokesElement.bgPressed : KeystrokesConfig.keystrokesElement.bgUnpressed).getRGB();
-        if (this.percentFaded < 1.0F) {
-            int lastColor = (this.isPressed ? KeystrokesConfig.keystrokesElement.bgUnpressed : KeystrokesConfig.keystrokesElement.bgPressed).getRGB();
-            return getIntermediateColor(thisColor, lastColor, this.percentFaded);
+    public void updateState() {
+        boolean nowDown = isKeyDown(keyBinding.getKeyCode());
+        if (nowDown != isPressed) {
+            isPressed = nowDown;
+            lastPress = System.currentTimeMillis();
+            percentFaded = 0.0F;
         }
-        return thisColor;
+        long dt = System.currentTimeMillis() - lastPress;
+        percentFaded = Math.min(1.0F, dt / (float) style.getFadingTime());
     }
 
-    protected int getTextColor() {
-        int thisColor = (this.isPressed ? KeystrokesConfig.keystrokesElement.textPressed : KeystrokesConfig.keystrokesElement.textUnpressed).getRGB();
-        if (this.percentFaded < 1.0F) {
-            int lastColor = (this.isPressed ? KeystrokesConfig.keystrokesElement.textUnpressed : KeystrokesConfig.keystrokesElement.textPressed).getRGB();
-            return getIntermediateColor(thisColor, lastColor, this.percentFaded);
-        }
-        return thisColor;
-    }
+    public void render(float baseX, float baseY, float scale) {
+        float x = baseX + relX * scale;
+        float y = baseY + relY * scale;
+        float w = width * scale;
+        float h = height * scale;
 
-    private String getKeyName() {
-        if (KeystrokesConfig.keystrokesElement.arrows) {
-            if (keyBinding == Minecraft.getMinecraft().gameSettings.keyBindForward)
-                return "▲";
-            if (keyBinding == Minecraft.getMinecraft().gameSettings.keyBindBack)
-                return "▼";
-            if (keyBinding == Minecraft.getMinecraft().gameSettings.keyBindLeft)
-                return "◀";
-            if (keyBinding == Minecraft.getMinecraft().gameSettings.keyBindRight)
-                return "▶";
-        }
-        int code = this.keyBinding.getKeyCode();
-        switch (code) {
-            case -100:
-                return "LMB";
-            case -99:
-                return "RMB";
-            case -98:
-                return "MMB";
-            case 200:
-                return "U";
-            case 203:
-                return "L";
-            case 205:
-                return "R";
-            case 208:
-                return "D";
-            case 210:
-                return "INS";
-            case 29:
-                return "LCTRL";
-            case 157:
-                return "RCTRL";
-            case 56:
-                return "LALT";
-            case 184:
-                return "RALT";
-        }
-        if (code >= 0 && code <= 223)
-            return Keyboard.getKeyName(code);
-        if (code >= -100 && code <= -84)
-            return Mouse.getButtonName(code + 100);
-        return "[]";
-    }
-
-    public void updateKeyState() {
-        if (Minecraft.getMinecraft().currentScreen instanceof OneConfigGui) {
-            if (((System.currentTimeMillis() % 1000L > 500L)) != this.isPressed) {
-                this.isPressed = !this.isPressed;
-                this.percentFaded = 0.5F;
-                this.lastPress = System.currentTimeMillis();
-            }
-        } else if (this.isPressed != isKeyDown(this.keyBinding.getKeyCode())) {
-            this.isPressed = !this.isPressed;
-            this.lastPress = System.currentTimeMillis();
-        }
-        this.percentFaded = (float) (System.currentTimeMillis() - this.lastPress) / KeystrokesConfig.keystrokesElement.fadingTime;
-        if (this.percentFaded > 1.0F)
-            this.percentFaded = 1.0F;
+        KeyRenderer.drawBackground(x, y, w, h, style, isPressed, percentFaded, scale);
+        KeyRenderer.drawCenteredText(fr, getKeyName(), x, y, w, h, style, isPressed, percentFaded);
     }
 
     protected boolean isKeyDown(int code) {
         return (code < 0) ? Mouse.isButtonDown(code + 100) : Keyboard.isKeyDown(code);
     }
 
-    protected int getIntermediateColor(int a, int b, float percent) {
-        float avgRed = (a >> 16 & 0xFF) * percent + (b >> 16 & 0xFF) * (1.0F - percent);
-        float avgGreen = (a >> 8 & 0xFF) * percent + (b >> 8 & 0xFF) * (1.0F - percent);
-        float avgBlue = (a & 0xFF) * percent + (b & 0xFF) * (1.0F - percent);
-        float avgAlpha = (a >> 24 & 0xFF) * percent + (b >> 24 & 0xFF) * (1.0F - percent);
-        return ColorUtils.getColor(avgRed / 255.0F, avgGreen / 255.0F, avgBlue / 255.0F, avgAlpha / 255.0F);
+    protected String getKeyName() {
+        if (KeystrokesConfig.keystrokesElement.arrows) {
+            GameSettings gs = Minecraft.getMinecraft().gameSettings;
+            if (keyBinding == gs.keyBindForward) return "▲";
+            if (keyBinding == gs.keyBindBack)    return "▼";
+            if (keyBinding == gs.keyBindLeft)    return "◀";
+            if (keyBinding == gs.keyBindRight)   return "▶";
+        }
+        int code = this.keyBinding.getKeyCode();
+        switch (code) {
+            case -100: return "LMB";
+            case -99:  return "RMB";
+            case -98:  return "MMB";
+            case 200:  return "U";
+            case 203:  return "L";
+            case 205:  return "R";
+            case 208:  return "D";
+            case 210:  return "INS";
+            case 29:   return "LCTRL";
+            case 157:  return "RCTRL";
+            case 56:   return "LALT";
+            case 184:  return "RALT";
+        }
+        if (code >= 0 && code <= 223) return Keyboard.getKeyName(code);
+        if (code >= -100 && code <= -84) return Mouse.getButtonName(code + 100);
+        return "[]";
     }
-
 }

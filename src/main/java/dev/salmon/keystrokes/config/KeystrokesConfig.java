@@ -9,8 +9,8 @@ import dev.salmon.keystrokes.Keystrokes;
 import dev.salmon.keystrokes.hud.KeystrokesElement;
 
 public class KeystrokesConfig extends Config {
-    private static final int CB_HEIGHT = 16;
-    private static final int NORMAL_HEIGHT = 19;
+    private transient final int CB_HEIGHT = 16;
+    private transient final int NORMAL_HEIGHT = 19;
 
     @Switch(
             name = "Early 2017 CB Keys",
@@ -20,40 +20,34 @@ public class KeystrokesConfig extends Config {
     )
     public static boolean cbKeyRects = false;
 
-    @HUD(
-            name = "Keystrokes"
-    )
+    @HUD(name = "Keystrokes")
     public static KeystrokesElement keystrokesElement = new KeystrokesElement();
+
+    private transient final int[][] CB_LAYOUT = {
+            {CB_HEIGHT, 6},   // W
+            {CB_HEIGHT, 23},  // A
+            {CB_HEIGHT, 23},  // S
+            {CB_HEIGHT, 23}   // D
+    };
+
+    private transient final int[][] NORMAL_LAYOUT = {
+            {NORMAL_HEIGHT, 0},   // W
+            {NORMAL_HEIGHT, 20},  // A
+            {NORMAL_HEIGHT, 20},  // S
+            {NORMAL_HEIGHT, 20}   // D
+    };
 
     public KeystrokesConfig() {
         super(new Mod(Keystrokes.NAME, ModType.HUD, "/keystrokesrevamp_dark.svg"), "keystrokes.json");
         initialize();
         updateKeys();
-
-        addListener("cbKeyRects", KeystrokesConfig::updateKeys);
+        addListener("cbKeyRects", this::updateKeys);
     }
 
-    // TODO: Improve Me!
-    // These are constant values.. there is no need for it to be done this way
-    public static void updateKeys() {
-        if (cbKeyRects) {
-            keystrokesElement.movementKeys[0].height = CB_HEIGHT;
-            keystrokesElement.movementKeys[0].relY = 6;
-            keystrokesElement.movementKeys[1].height = CB_HEIGHT;
-            keystrokesElement.movementKeys[1].relY = 23;
-            keystrokesElement.movementKeys[2].height = CB_HEIGHT;
-            keystrokesElement.movementKeys[2].relY = 23;
-            keystrokesElement.movementKeys[3].height = CB_HEIGHT;
-            keystrokesElement.movementKeys[3].relY = 23;
-        } else {
-            keystrokesElement.movementKeys[0].height = NORMAL_HEIGHT;
-            keystrokesElement.movementKeys[0].relY = 0;
-            keystrokesElement.movementKeys[1].height = NORMAL_HEIGHT;
-            keystrokesElement.movementKeys[1].relY = 20;
-            keystrokesElement.movementKeys[2].height = NORMAL_HEIGHT;
-            keystrokesElement.movementKeys[2].relY = 20;
-            keystrokesElement.movementKeys[3].height = NORMAL_HEIGHT;
-            keystrokesElement.movementKeys[3].relY = 20;
+    public void updateKeys() {
+        int[][] layout = cbKeyRects ? CB_LAYOUT : NORMAL_LAYOUT;
+        for (int i = 0; i < keystrokesElement.movementKeys.length; i++) {
+            keystrokesElement.movementKeys[i].setLayout(layout[i][0], layout[i][1]);
         }
     }
 }

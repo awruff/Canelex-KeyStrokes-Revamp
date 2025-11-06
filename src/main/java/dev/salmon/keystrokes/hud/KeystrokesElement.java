@@ -37,7 +37,7 @@ public class KeystrokesElement extends Hud {
     public int fadingTime = 100;
 
     @Switch(name = "Shadow while Idle")
-    public boolean shadow = false;
+    public boolean shadowIdle = false;
 
     @Switch(name = "Shadow while Pressed")
     public boolean shadowActive = false;
@@ -45,56 +45,55 @@ public class KeystrokesElement extends Hud {
     @Switch(name = "Rounded Corners")
     public boolean rounded;
 
-    @Slider(
-            name = "Corner radius",
-            min = 0f,
-            max = 10f
-    )
+    @Slider(name = "Corner radius", min = 0f, max = 10f)
     public int cornerRadius = 2;
 
     public transient final GuiKey[] movementKeys;
-    transient private final GuiKeyMouse[] mouseKeys;
-    transient private final GuiKey jumpKey;
+    private transient final GuiKeyMouse[] mouseKeys;
+    private transient final GuiKey jumpKey;
 
     public KeystrokesElement() {
         super(true, 0, 0, 1);
         GameSettings gs = Minecraft.getMinecraft().gameSettings;
-        (this.movementKeys = new GuiKey[4])[0] = new GuiKey(20, 0, 19, 19, gs.keyBindForward); // w
-        this.movementKeys[1] = new GuiKey(0, 20, 19, 19, gs.keyBindLeft); // a
-        this.movementKeys[2] = new GuiKey(20, 20, 19, 19, gs.keyBindBack); // s
-        this.movementKeys[3] = new GuiKey(40, 20, 19, 19, gs.keyBindRight); // d
-        (this.mouseKeys = new GuiKeyMouse[2])[0] = new GuiKeyMouse(0, 40, 29, 19, gs.keyBindAttack); // left click
-        this.mouseKeys[1] = new GuiKeyMouse(30, 40, 29, 19, gs.keyBindUseItem); // right click
+
+        this.movementKeys = new GuiKey[4];
+        this.movementKeys[0] = new GuiKey(20, 0, 19, 19, gs.keyBindForward); // W
+        this.movementKeys[1] = new GuiKey(0, 20, 19, 19, gs.keyBindLeft);    // A
+        this.movementKeys[2] = new GuiKey(20, 20, 19, 19, gs.keyBindBack);   // S
+        this.movementKeys[3] = new GuiKey(40, 20, 19, 19, gs.keyBindRight);  // D
+
+        this.mouseKeys = new GuiKeyMouse[2];
+        this.mouseKeys[0] = new GuiKeyMouse(0, 40, 29, 19, gs.keyBindAttack);   // LMB
+        this.mouseKeys[1] = new GuiKeyMouse(30, 40, 29, 19, gs.keyBindUseItem); // RMB
+
         this.jumpKey = new GuiKeySpace(0, 60, 59, 11, gs.keyBindJump); // space
     }
 
     @Override
     protected void draw(UMatrixStack matrices, float x, float y, float scale, boolean example) {
-        if (this.scale != 0.0F) {
-            UGraphics.GL.pushMatrix();
-            UGraphics.GL.translate(-x * (scale - 1.0F), -y * (scale - 1.0F), 0.0F);
-            UGraphics.GL.scale(scale, scale, 1.0F);
-            for (GuiKey key : this.movementKeys) {
-                key.updateKeyState();
-                key.drawKey(x, y, scale);
-            }
-            if (mouseKeystrokes) {
-                for (GuiKey key : this.mouseKeys) {
-                    key.updateKeyState();
-                    key.drawKey(x, y, scale);
-                }
-            }
-            if (jumpKeystrokes) {
-                if (mouseKeystrokes) {
-                    jumpKey.relY = 60;
-                } else {
-                    jumpKey.relY = 40;
-                }
-                this.jumpKey.updateKeyState();
-                this.jumpKey.drawKey(x, y, scale);
-            }
-            UGraphics.GL.popMatrix();
+        UGraphics.GL.pushMatrix();
+        UGraphics.GL.translate(-x * (scale - 1.0F), -y * (scale - 1.0F), 0.0F);
+        UGraphics.GL.scale(scale, scale, 1.0F);
+
+        for (GuiKey key : this.movementKeys) {
+            key.updateState();
+            key.render(x, y, scale);
         }
+
+        if (mouseKeystrokes) {
+            for (GuiKeyMouse key : this.mouseKeys) {
+                key.updateState();
+                key.render(x, y, scale);
+            }
+        }
+
+        if (jumpKeystrokes) {
+            jumpKey.relY = mouseKeystrokes ? 60 : 40;
+            jumpKey.updateState();
+            jumpKey.render(x, y, scale);
+        }
+
+        UGraphics.GL.popMatrix();
     }
 
     @Override
@@ -102,6 +101,7 @@ public class KeystrokesElement extends Hud {
         return (59 * scale);
     }
 
+    // FIXME: Inaccurate with cbKeyRects
     @Override
     public float getHeight(float scale, boolean example) {
         int height = 39;

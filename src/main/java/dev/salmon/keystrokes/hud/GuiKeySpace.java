@@ -1,45 +1,29 @@
 package dev.salmon.keystrokes.hud;
 
-import cc.polyfrost.oneconfig.platform.Platform;
-import cc.polyfrost.oneconfig.renderer.NanoVGHelper;
-import dev.salmon.keystrokes.config.KeystrokesConfig;
+import dev.salmon.keystrokes.hud.api.KeyRenderer;
 import net.minecraft.client.settings.KeyBinding;
 
 public class GuiKeySpace extends GuiKey {
-
     public GuiKeySpace(float x, float y, float width, float height, KeyBinding keyBinding) {
         super(x, y, width, height, keyBinding);
     }
 
-    public void drawKey(float x, float y, float scale) {
-        float finalX = x + relX * scale;
-        float finalY = y + relY * scale;
-        x += this.relX;
-        y += this.relY;
-        if (KeystrokesConfig.keystrokesElement.rounded) {
-            NanoVGHelper.INSTANCE.setupAndDraw(true, vg -> NanoVGHelper.INSTANCE.drawRoundedRect(vg, finalX, finalY, width * scale, height * scale, getBackgroundColor(), KeystrokesConfig.keystrokesElement.cornerRadius * scale));
-        } else {
-            Platform.getGLPlatform().drawRect(x, y, x + this.width, y + this.height, getBackgroundColor());
-        }
-        int color = getTextColor();
-        boolean shadow = isPressed ? KeystrokesConfig.keystrokesElement.shadowActive : KeystrokesConfig.keystrokesElement.shadow;
-        drawHorizontalLine(x + this.width / 2 - 6, x + this.width / 2 + 5, y + this.height / 2 - 0.5f, color);
-        if (shadow) {
-            if ((color & 0xFC000000) == 0)
-                color |= 0xFF000000;
-            color = (color & 0xFCFCFC) >> 2 | color & 0xFF000000;
-            drawHorizontalLine(x + this.width / 2 - 5, x + this.width / 2 + 6, y + this.height / 2 + 0.5f, color);
-        }
+    @Override
+    public void render(float baseX, float baseY, float scale) {
+        float x = baseX + relX * scale;
+        float y = baseY + relY * scale;
+        float w = width * scale;
+        float h = height * scale;
+
+        KeyRenderer.drawBackground(x, y, w, h, style, isPressed, percentFaded, scale);
+
+        int color = style.textColor(isPressed, percentFaded);
+        boolean shadow = isPressed ? style.isShadowActive() : style.isShadowIdle();
+        KeyRenderer.drawSpaceGlyph(x, y, w, h, color, shadow);
     }
 
-    protected void drawHorizontalLine(float startX, float endX, float y, int color) {
-        if (endX < startX) {
-            float i = startX;
-            startX = endX;
-            endX = i;
-        }
-
-        Platform.getGLPlatform().drawRect(startX, y, endX + 1, y + 1, color);
+    @Override
+    protected String getKeyName() {
+        return ""; // not used for space rendering
     }
-
 }
