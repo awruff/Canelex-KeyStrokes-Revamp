@@ -36,8 +36,11 @@ public class KeystrokesElement extends Hud {
     @Slider(name = "Fading Time", min = 1F, max = 250F, step = 1)
     public int fadingTime = 100;
 
-    @Switch(name = "Shadow")
+    @Switch(name = "Shadow while Idle")
     public boolean shadow = false;
+
+    @Switch(name = "Shadow while Pressed")
+    public boolean shadowActive = false;
 
     @Switch(name = "Rounded Corners")
     public boolean rounded;

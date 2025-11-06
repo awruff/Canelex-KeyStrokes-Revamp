@@ -51,7 +51,8 @@ public class GuiKey extends Gui {
         y += (this.height - this.fr.FONT_HEIGHT + 2) / 2;
 
         GlStateManager.enableBlend();
-        this.fr.drawString(getKeyName(), x, y, getTextColor(), KeystrokesConfig.keystrokesElement.shadow);
+        boolean shadow = isPressed ? KeystrokesConfig.keystrokesElement.shadowActive : KeystrokesConfig.keystrokesElement.shadow;
+        this.fr.drawString(getKeyName(), x, y, getTextColor(), shadow);
         GlStateManager.disableBlend();
     }
 
