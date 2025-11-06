@@ -87,6 +87,7 @@ public class KeystrokesElement extends Hud {
             for (GuiKeyMouse key : this.mouseKeys) {
                 key.updateState();
                 key.render(x, y, scale);
+                if (mouseCPS) key.drawCps(x, y, 0.5F);
             }
         }
 
