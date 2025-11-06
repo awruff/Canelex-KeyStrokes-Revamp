@@ -22,8 +22,9 @@ public class GuiKeySpace extends GuiKey {
             Platform.getGLPlatform().drawRect(x, y, x + this.width, y + this.height, getBackgroundColor());
         }
         int color = getTextColor();
+        boolean shadow = isPressed ? KeystrokesConfig.keystrokesElement.shadowActive : KeystrokesConfig.keystrokesElement.shadow;
         drawHorizontalLine(x + this.width / 2 - 6, x + this.width / 2 + 5, y + this.height / 2 - 0.5f, color);
-        if (KeystrokesConfig.keystrokesElement.shadow) {
+        if (shadow) {
             if ((color & 0xFC000000) == 0)
                 color |= 0xFF000000;
             color = (color & 0xFCFCFC) >> 2 | color & 0xFF000000;
