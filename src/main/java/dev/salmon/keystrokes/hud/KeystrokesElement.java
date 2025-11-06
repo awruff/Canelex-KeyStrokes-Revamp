@@ -15,6 +15,9 @@ public class KeystrokesElement extends Hud {
     @Switch(name = "Enable Mouse Keystrokes")
     public boolean mouseKeystrokes = true;
 
+    @Switch(name = "Enable Mouse CPS")
+    public boolean mouseCPS = false;
+
     @Switch(name = "Jump (Space) Keystrokes")
     public boolean jumpKeystrokes = false;
 

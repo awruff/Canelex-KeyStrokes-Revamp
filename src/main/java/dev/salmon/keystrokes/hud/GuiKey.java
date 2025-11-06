@@ -1,11 +1,16 @@
 package dev.salmon.keystrokes.hud;
 
+import cc.polyfrost.oneconfig.gui.OneConfigGui;
+import cc.polyfrost.oneconfig.platform.Platform;
+import cc.polyfrost.oneconfig.renderer.NanoVGHelper;
+import cc.polyfrost.oneconfig.utils.color.ColorUtils;
 import dev.salmon.keystrokes.config.KeystrokesConfig;
 import dev.salmon.keystrokes.hud.api.KeyRenderer;
 import dev.salmon.keystrokes.hud.api.KeyStyle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import org.lwjgl.input.Keyboard;
@@ -55,6 +60,11 @@ public class GuiKey extends Gui {
         float h = height * scale;
 
         KeyRenderer.drawBackground(x, y, w, h, style, isPressed, percentFaded, scale);
+
+        if (KeystrokesConfig.keystrokesElement.mouseCPS && this instanceof GuiKeyMouse) {
+            y -= 2;
+        }
+
         KeyRenderer.drawCenteredText(fr, getKeyName(), x, y, w, h, style, isPressed, percentFaded);
     }
 
