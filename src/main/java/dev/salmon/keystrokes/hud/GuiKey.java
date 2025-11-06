@@ -17,7 +17,10 @@ public class GuiKey extends Gui {
 
     protected final FontRenderer fr;
 
-    protected float relX, relY, width, height;
+    protected float relX;
+    public float relY;
+    protected float width;
+    public float height;
     protected KeyBinding keyBinding;
     protected boolean isPressed;
     protected float percentFaded;

@@ -1,30 +1,25 @@
 @file:Suppress("PropertyName")
 
+import groovy.lang.MissingPropertyException
+
 pluginManagement {
     repositories {
+        maven("https://maven.deftu.dev/releases")
+        maven("https://maven.fabricmc.net")
+        maven("https://maven.architectury.dev/")
+        maven("https://maven.minecraftforge.net")
+        maven("https://repo.essential.gg/repository/maven-public")
+        maven("https://server.bbkr.space/artifactory/libs-release/")
+        maven("https://jitpack.io/")
+
+        maven("https://maven.deftu.dev/snapshots")
+        mavenLocal()
+
         gradlePluginPortal()
         mavenCentral()
-        maven("https://repo.polyfrost.org/releases") // Adds the Polyfrost maven repository to get Polyfrost Gradle Toolkit
-    }
-    plugins {
-        val pgtVersion = "0.2.9" // Sets the default versions for Polyfrost Gradle Toolkit
-        id("org.polyfrost.multi-version.root") version pgtVersion
     }
 }
 
-val mod_name: String by settings
-
-// Configures the root project Gradle name based on the value in `gradle.properties`
-rootProject.name = mod_name
-rootProject.buildFileName = "root.gradle.kts"
-
-// Adds all of our build target versions to the classpath if we need to add version-specific code.
-listOf(
-    "1.8.9-forge"
-).forEach { version ->
-    include(":$version")
-    project(":$version").apply {
-        projectDir = file("versions/$version")
-        buildFileName = "../../build.gradle.kts"
-    }
-}
+val projectName: String = extra["mod.name"]?.toString() ?: throw MissingPropertyException("mod.name has not been set.")
+rootProject.name = projectName
+rootProject.buildFileName = "build.gradle.kts"

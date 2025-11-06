@@ -13,10 +13,12 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-@Mod(modid = Keystrokes.ID, name = Keystrokes.NAME, version = Keystrokes.VER)
+@Mod(modid = Keystrokes.ID, name = Keystrokes.NAME, version = Keystrokes.VERSION)
 public class Keystrokes {
 
-    public static final String NAME = "@NAME@", VER = "@VER@", ID = "@ID@";
+    public static final String ID = "@MOD_ID@";
+    public static final String NAME = "@MOD_NAME@";
+    public static final String VERSION = "@MOD_VERSION@";
 
     @Mod.Instance(ID)
     public static Keystrokes INSTANCE;
