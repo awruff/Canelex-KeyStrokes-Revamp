@@ -6,8 +6,7 @@ import org.polyfrost.keystrokes.hud.api.KeyRenderer.drawBackground
 import org.polyfrost.keystrokes.hud.api.KeyRenderer.drawCenteredText
 import java.util.*
 
-class GuiKeyMouse(x: Float, y: Float, width: Float, height: Float, keyBinding: KeyBinding) :
-    GuiKey(x, y, width, height, keyBinding) {
+class GuiKeyMouse(x: Float, y: Float, width: Float, height: Float, keyBinding: KeyBinding) : GuiKey(x, y, width, height, keyBinding) {
     private var pressed = false
     private val clicks: Queue<Long?> = LinkedList<Long?>()
 

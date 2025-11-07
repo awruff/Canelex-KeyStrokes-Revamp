@@ -4,8 +4,7 @@ import net.minecraft.client.settings.KeyBinding
 import org.polyfrost.keystrokes.hud.api.KeyRenderer.drawBackground
 import org.polyfrost.keystrokes.hud.api.KeyRenderer.drawSpaceGlyph
 
-class GuiKeySpace(x: Float, y: Float, width: Float, height: Float, keyBinding: KeyBinding) :
-    GuiKey(x, y, width, height, keyBinding) {
+class GuiKeySpace(x: Float, y: Float, width: Float, height: Float, keyBinding: KeyBinding) : GuiKey(x, y, width, height, keyBinding) {
     override fun render(baseX: Float, baseY: Float, scale: Float) {
         val x = baseX + relX * scale
         val y = baseY + relY * scale

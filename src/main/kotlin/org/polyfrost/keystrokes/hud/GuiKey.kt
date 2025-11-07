@@ -12,22 +12,18 @@ import org.polyfrost.keystrokes.hud.api.KeyStyle
 import kotlin.math.min
 
 open class GuiKey(
-    @JvmField protected var relX: Float,
-    @JvmField var relY: Float,
-    @JvmField protected var width: Float,
-    @JvmField protected var height: Float,
-    @JvmField protected val keyBinding: KeyBinding
+    protected var relX: Float,
+    var relY: Float,
+    protected var width: Float,
+    protected var height: Float,
+    protected val keyBinding: KeyBinding
 ) : Gui() {
-    @JvmField
     protected val style: KeyStyle = KeyStyle
 
-    @JvmField
     protected val fr: FontRenderer = Minecraft.getMinecraft().fontRendererObj
 
-    @JvmField
     protected var isPressed: Boolean = false
 
-    @JvmField
     protected var percentFaded: Float = 1.0f
     private var lastPress: Long
 
